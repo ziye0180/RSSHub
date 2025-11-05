@@ -15,6 +15,12 @@ services:
             # github:个人访问令牌
             GITHUB_ACCESS_TOKEN: ${GITHUB_ACCESS_TOKEN}
 
+            # Twitter 认证信息
+            TWITTER_USERNAME: ${TWITTER_USERNAME}
+            TWITTER_PASSWORD: ${TWITTER_PASSWORD}
+            TWITTER_AUTH_TOKEN: ${TWITTER_AUTH_TOKEN}
+            TWITTER_AUTHENTICATION_SECRET: ${TWITTER_AUTHENTICATION_SECRET}
+
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:1200/healthz"]
             interval: 30s
