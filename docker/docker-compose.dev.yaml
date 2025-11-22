@@ -1,0 +1,69 @@
+name: awaken-rsshub-dev
+services:
+  rsshub:
+    image: awaken-rsshub:latest
+    container_name: awaken-rsshub-dev
+    restart: on-failure
+    ports:
+      - "${RSSHUB_PORT:-1200}:1200"
+    environment:
+      NODE_ENV: production
+      CACHE_TYPE: redis
+      REDIS_URL: "redis://redis:6379/"
+      PUPPETEER_WS_ENDPOINT: "ws://browserless:3000"
+      TZ: Asia/Shanghai
+    env_file:
+      - ../.env.dev
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1200/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      redis:
+        condition: service_healthy
+      browserless:
+        condition: service_healthy
+    networks:
+      - rsshub-network
+
+  browserless:
+    image: browserless/chrome
+    container_name: awaken-rsshub-browserless-dev
+    restart: on-failure
+    ulimits:
+      core:
+        hard: 0
+        soft: 0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/pressure"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rsshub-network
+
+  redis:
+    image: redis:alpine
+    container_name: awaken-rsshub-redis-dev
+    restart: on-failure
+    volumes:
+      - redis-data-dev:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+    networks:
+      - rsshub-network
+
+volumes:
+  redis-data-dev:
+
+networks:
+  rsshub-network:
+    driver: bridge

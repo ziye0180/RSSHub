@@ -1,0 +1,69 @@
+name: awaken-rsshub-prod
+services:
+  rsshub:
+    image: registry.cn-hangzhou.aliyuncs.com/aiawaken/awaken-rsshub:latest
+    container_name: awaken-rsshub-prod
+    restart: always
+    ports:
+      - "${RSSHUB_PORT:-21200}:1200"
+    environment:
+      NODE_ENV: production
+      CACHE_TYPE: redis
+      REDIS_URL: "redis://redis:6379/"
+      PUPPETEER_WS_ENDPOINT: "ws://browserless:3000"
+      TZ: Asia/Shanghai
+    env_file:
+      - ../.env.prod
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1200/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      redis:
+        condition: service_healthy
+      browserless:
+        condition: service_healthy
+    networks:
+      - rsshub-network
+
+  browserless:
+    image: browserless/chrome
+    container_name: awaken-rsshub-browserless-prod
+    restart: always
+    ulimits:
+      core:
+        hard: 0
+        soft: 0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/pressure"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rsshub-network
+
+  redis:
+    image: redis:alpine
+    container_name: awaken-rsshub-redis-prod
+    restart: always
+    volumes:
+      - redis-data-prod:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+    networks:
+      - rsshub-network
+
+volumes:
+  redis-data-prod:
+
+networks:
+  rsshub-network:
+    driver: bridge

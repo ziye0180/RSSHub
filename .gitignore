@@ -1,6 +1,7 @@
 .DS_Store
 .cursorrules
 .env*
+!.env.template
 .eslintcache
 .idea
 .log
@@ -15,6 +16,7 @@
 
 *.swp
 *.iml
+*.backup
 
 app-minimal/
 assets/build/
@@ -24,6 +26,9 @@ memory-bank/
 node_modules
 tmp
 dist
+
+# Docker 日志目录
+docker/logs/
 
 Session.vim
 combined.log
