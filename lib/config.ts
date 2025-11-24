@@ -433,6 +433,10 @@ export type Config = {
     smzdm: {
         cookie?: string;
     };
+    rssproxy: {
+        defaultTtl?: number;
+        blockedDomains?: string[];
+    };
 };
 
 const value: Config | Record<string, any> = {};
@@ -909,6 +913,13 @@ const calculateValue = () => {
         },
         smzdm: {
             cookie: envs.SMZDM_COOKIE,
+        },
+        rssproxy: {
+            defaultTtl: envs.RSSPROXY_DEFAULT_TTL ? Number.parseInt(envs.RSSPROXY_DEFAULT_TTL) : 300,
+            blockedDomains:
+                envs.RSSPROXY_BLOCKED_DOMAINS?.split(',')
+                    .map((d) => d.trim())
+                    .filter(Boolean) || [],
         },
     };
 
