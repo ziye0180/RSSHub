@@ -152,7 +152,7 @@ async function handler(ctx) {
             let items = feed.items.map((item) => ({
                 title: item.title || '',
                 link: item.link || '',
-                description: item.content || item.contentSnippet || item.description || '',
+                description: item['content:encoded'] || item.content || item.contentSnippet || item.description || '',
                 pubDate: item.pubDate ? parseDate(item.pubDate) : undefined,
                 author: item.creator || item.author || '',
                 category: item.categories || [],
